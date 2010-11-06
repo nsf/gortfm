@@ -3,7 +3,7 @@ include $(GOROOT)/src/Make.inc
 TARG=gortfm
 GOFILES=gortfm.go packagetemplate.go jsencode.go shared.go
 PREREQ+=doce.a
-CLEANFILES+=shared.go packagetemplate.go
+#CLEANFILES+=shared.go packagetemplate.go
 
 include $(GOROOT)/src/Make.cmd
 
