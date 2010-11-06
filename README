@@ -1,0 +1,30 @@
+gortfm - Documentation generator for the Go programming language
+
+Currently requires ruby 1.9 in order to use gortfm-util script. Hopefully I
+will rewrite it to Go eventually.
+
+Installation:
+	cd gortfm
+	make install
+
+Simplest usage:
+	cd <my-project-dir>
+	gortfm $(gortfm-util gofiles)
+	cd html
+	<my-favourite-browser> <package-name>.html
+
+More complex:
+	cd <my-project-dir>
+	gortfm-util genrule >> Makefile
+	make html
+	cd html
+	<my-favourite-browser> <package-name>.html
+
+I hope it works for you.. Wasn't tested a lot, but it was able to generate
+successfully documentation for the whole Go standard library. Btw, you can do
+it yourself:
+	gortfm-util stdlib $GOROOT my_go_documentation
+	...<wait>
+	cd my_go_documentation
+	<my-favourite-browser> index.html
+	...<enjoy> :-D
