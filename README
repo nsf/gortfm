@@ -1,7 +1,7 @@
 gortfm - Documentation generator for the Go programming language
 
-Currently requires ruby 1.9 in order to use gortfm-util script. Hopefully I
-will rewrite it to Go eventually.
+Currently requires ruby 1.9 (maybe it will work with ruby 1.8 as well) in order
+to use gortfm-util script. Hopefully I will rewrite it in Go eventually.
 
 Installation:
 	cd gortfm
