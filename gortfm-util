@@ -1,0 +1,180 @@
+#!/usr/bin/env ruby
+
+require 'tempfile'
+
+def puts_help_to_stderr
+	STDERR.puts "usage: #{$0} gofiles [<dir>]"
+	STDERR.puts "       #{$0} genrule [<dir>]"
+	STDERR.puts "       #{$0} stdlib <goroot> <outdir>"
+end
+
+def get_gofiles(dir, prevent_expansion)
+	gofiles_rule = if prevent_expansion then
+		"\ngofiles:\n\t@echo -n \"$(subst $$,\\$$,$(value GOFILES)) $(subst $$,\\$$,$(value CGOFILES))\""
+	else
+		"\ngofiles:\n\t@echo -n \"$(GOFILES) $(CGOFILES)\""
+	end
+
+	makefile = File.join(dir, "Makefile")
+	if not File.exists? makefile then
+		STDERR.puts "Failed to find the Makefile in the specified directory"
+		exit 1
+	end
+
+	mkfilecnt = begin
+		IO.read(makefile)
+	rescue
+		STDERR.puts "Failed to read the Makefile in the specified directory"
+		exit 1
+	end
+
+	gofiles_list = Tempfile.open("__Makefile__") do |tmp|
+		tmp.write(mkfilecnt)
+		tmp.write(gofiles_rule)
+		tmp.flush
+		%x[make --no-print-directory -C #{dir} -f #{tmp.path} gofiles]
+	end.strip.sub(" $(patsubst %.go,%.cgo1.go,$(CGOFILES))", "").split(" ")
+
+	return gofiles_list.reject do |f|
+		f.start_with?("_cgo_") or
+		f.end_with?(".cgo1.go")
+	end.join(" ")
+end
+
+def gofiles(opts)
+	if opts.empty? then
+		opts = ["."]
+	end
+	dir = opts.shift
+	print get_gofiles(dir, false)
+	STDOUT.flush
+end
+
+def genrule(opts)
+	if opts.empty? then
+		opts = ["."]
+	end
+
+	dir = opts.shift
+	gofiles_list = get_gofiles(dir, true)
+
+	puts "html: #{gofiles_list}"
+	puts "\tgortfm #{gofiles_list}"
+	puts "CLEANFILES+=html"
+end
+
+GoPackage = Struct.new :name, :file
+$packages = []
+
+def stdlib(opts)
+	if opts.length != 2 then
+		puts_help_to_stderr
+		exit 1
+	end
+
+	goroot = File.join(opts.shift, "src", "pkg")
+	outdir = opts.shift
+
+	def build_pkg(dir, outdir)
+		gofiles_rule = "\ngofiles:\n\t@echo -n \"$(TARG):$(GOFILES)\""
+		makefile = File.join(dir, "Makefile")
+
+		mkfilecnt = IO.read(makefile) rescue return
+		data = Tempfile.open("__Makefile__") do |tmp|
+			tmp.write(mkfilecnt)
+			tmp.write(gofiles_rule)
+			tmp.flush
+
+			%x[make --no-print-directory -C #{dir} -f #{tmp.path} gofiles].split(":")
+		end
+
+		targ = data[0]
+		gofiles = data[1]
+
+		return unless targ
+
+		$packages.push GoPackage.new(targ, targ.gsub("/", "_") + ".html")
+
+		gofiles_args = gofiles.split(" ").map do |f|
+			File.join(dir, f)
+		end
+
+		gortfm = "gortfm -nicename=\"#{targ}\" -outdir=\"#{outdir}\" -index=index.html -no-shared"
+		puts "Building documentation for #{targ}..."
+		%x[#{gortfm} #{gofiles_args.join(" ")}]
+	end
+
+	def process_dir(dir, outdir)
+		dirs = []
+		makefile = File.join(dir, "Makefile")
+		if File.exists? makefile then
+			build_pkg(dir, outdir)
+		end
+		Dir["#{dir}#{File::SEPARATOR}*"].sort.each do |dir|
+			process_dir(dir, outdir) if File.directory? dir
+		end
+	end
+
+	process_dir(goroot, outdir)
+	puts "Writing shared data..."
+	%x[gortfm -outdir=\"#{outdir}\"]
+
+	puts "Writing index page..."
+	File.open(File.join(outdir, "index.html"), "w") do |f|
+		f.puts '<html>
+<head>
+	<title>Go Library Index</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="shared/gortfm.css" />
+	<script type="text/javascript" src="gortfm-index.js"></script>
+	<script type="text/javascript" src="shared/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="shared/gortfm-fuzzy.js"></script>
+	<script type="text/javascript" src="shared/gortfm-index.js"></script>
+</head>
+<body>
+
+<div id="header">
+	<div class="line">
+		<input id="filter" class="inactive" placeholder="Press TAB" />
+		<span>
+			Go Library Index
+		</span>
+	</div>
+</div>
+
+<div id="contents">
+</div>
+
+<div id="footer">
+	<div>Powered by: 
+		<a href="http://jquery.com">jQuery</a>
+	</div>
+</div>
+</body>
+</html>'
+	end
+
+	puts "Writing index page data..."		
+	File.open(File.join(outdir, "gortfm-index.js"), "w") do |f|
+		f.print "var gortfmData = ["
+		links = $packages.each.map do |pkg|
+			"{name:'#{pkg.name}',html:'<a href=\"#{pkg.file}\">#{pkg.name}</a>'}"
+		end.join(",")
+		f.print links
+		f.print "]"
+	end
+end
+
+if ARGV.length < 1 then
+	puts_help_to_stderr
+	exit 1
+end
+
+action = ARGV.shift
+
+if ["gofiles", "genrule", "stdlib"].include?(action) then
+	method(action).call(ARGV)
+else
+	puts_help_to_stderr
+	exit 1
+end

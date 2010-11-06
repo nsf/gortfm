@@ -1,0 +1,120 @@
+body {
+	padding: 0;
+	margin: 0;
+	font-size: 14px;
+	font-family: Arial, sans-serif;
+}
+#header {
+	position: fixed;
+	width: 100%;
+	height: 41px;
+	background-color: #FAF3D2;
+	border-bottom: 1px solid black;
+	display: table;
+}
+#header .line {
+	margin: 0;
+	padding: 0;
+	display: table-cell;
+	vertical-align: middle;
+}
+.line span {
+	margin: 0;
+	font-size: 28px;
+	font-weight: bold;
+	vertical-align: middle;
+}
+.line input {
+	margin: 0px 9px;
+	vertical-align: middle;
+}
+#contents {
+	overflow: auto;
+	padding: 53px 15px;
+}
+#contents h2 {
+	padding-top: 5px;
+	border-top: 1px dotted #000;
+	margin: 5px 0 5px 0;
+}
+#footer {
+	overflow: auto;
+	border-top: 1px solid black;
+	width: 100%;
+}
+#footer div {
+	padding: 10px;
+}
+/* this is an input field which is used for filtering data */
+#filter {
+	font-size: 14px;
+	font-weight: normal;
+	font-family: monospace;
+	outline: none;
+	border: 1px solid #aaa;
+	width: 300px;
+	padding: 2px;
+}
+#filter:focus {
+	border: 1px solid black;
+}
+#filter.inactive {
+	text-align: center;
+}
+#package {
+	margin: 10px 10px 25px 10px;
+	background-color: #eee;
+	border: 1px solid gray;
+}
+#package h1 {
+	margin: 0;
+}
+#package .container {
+	margin: 10px;
+}
+ul, ol {
+	margin-top: 10px;
+	margin-bottom: 13px;
+}
+ul li {
+	margin-top: 3px;
+}
+a {
+	color: #006B9B;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+a.black {
+	color: black;
+}
+a.black:hover {
+	text-decoration: underline;
+}
+pre {
+	overflow: hidden;
+	padding: 5px;
+	background-color: ghostwhite;
+	border: 1px solid #DEDEDE;
+}
+/* copy & paste from treeview style, remove? */
+.root a {
+	color: black;
+}
+
+.root a:hover {
+	color: black;
+	background-color: #eee;
+	border: 1px solid gray;
+	text-decoration: none;
+}
+
+.root a.selected {
+	background-color: #B5D5FF;
+}
+
+.root a.selected:hover {
+	background-color: #B5D5FF;
+	border: none;
+}
