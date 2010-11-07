@@ -3,7 +3,7 @@ include $(GOROOT)/src/Make.inc
 TARG=gortfm
 GOFILES=gortfm.go packagetemplate.go jsencode.go shared.go
 PREREQ+=doce.a
-#CLEANFILES+=shared.go packagetemplate.go
+DEPS+=util
 
 include $(GOROOT)/src/Make.cmd
 
@@ -38,9 +38,3 @@ packagetemplate.go: $T/package.html
 	echo -en "package main\n\nconst packageTemplateStr = \`" > packagetemplate.go
 	sed "s/gortfm-data.js/{datafile}/" $T/package.html >> packagetemplate.go
 	echo -n "\`" >> packagetemplate.go
-
-install: $(QUOTED_GOBIN)/gortfm-util
-
-$(QUOTED_GOBIN)/gortfm-util: gortfm-util
-	cp -f gortfm-util $(QUOTED_GOBIN)
-
