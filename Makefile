@@ -15,6 +15,7 @@ clean: cleandeps
 
 cleandeps:
 	gomake -C doce clean
+	gomake -C util clean
 
 T=template
 S=$T/shared
