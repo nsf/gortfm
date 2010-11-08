@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func run(name string, args... string) string {
+func run(name string, args ...string) string {
 	path, err := exec.LookPath(name)
 	if err != nil {
 		panic(err)
@@ -19,7 +19,7 @@ func run(name string, args... string) string {
 	}
 
 	p, err := exec.Run(path, append([]string{name}, args...), os.Environ(),
-			   cwd, exec.Pipe, exec.Pipe, exec.Pipe)
+		cwd, exec.Pipe, exec.Pipe, exec.Pipe)
 	if err != nil {
 		panic(err)
 	}

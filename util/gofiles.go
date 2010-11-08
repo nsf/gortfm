@@ -85,7 +85,7 @@ func getGofiles(dir, rule string) (string, os.Error) {
 func postProcessGofiles(gofilesList string) string {
 	// post-process 'gofilesList'
 	gofilesList = strings.Replace(gofilesList, " $(patsubst %.go,%.cgo1.go,$(CGOFILES))",
-				      "", -1)
+		"", -1)
 	gofiles := strings.Split(gofilesList, " ", -1)
 	i := 0
 	for _, f := range gofiles {
@@ -96,5 +96,5 @@ func postProcessGofiles(gofilesList string) string {
 		i++
 	}
 	gofiles = gofiles[:i]
-	return strings.Join(gofiles, " ")
+	return strings.TrimSpace(strings.Join(gofiles, " "))
 }

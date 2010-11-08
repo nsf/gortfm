@@ -66,10 +66,11 @@ func writePackagePage(pkgname string) {
 
 	var packageTemplate = template.MustParse(packageTemplateStr, nil)
 
-	packageTemplate.Execute(map[string]string{
-		"pkgname": pkgname,
-		"datafile": "gortfm-"+pkgfilename+"-data.js",
-	}, bf)
+	tplparams := map[string]string{
+		"pkgname":  pkgname,
+		"datafile": "gortfm-" + pkgfilename + "-data.js",
+	}
+	packageTemplate.Execute(tplparams, bf)
 	bf.Flush()
 }
 

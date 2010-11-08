@@ -287,10 +287,9 @@ func writeJSPropStringSlice(b *bytes.Buffer, name string, prop []string) {
 	b.WriteString(`[`)
 	for i, p := range prop {
 		writeJSString(b, p)
-		if i != len(prop) - 1 {
+		if i != len(prop)-1 {
 			b.WriteString(`,`)
 		}
 	}
 	b.WriteString(`]`)
 }
-

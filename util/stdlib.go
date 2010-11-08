@@ -63,6 +63,7 @@ func buildPkg(dir, outdir string) {
 }
 
 type dirVisitor string
+
 func (outdir dirVisitor) VisitDir(path string, f *os.FileInfo) bool {
 	buildPkg(path, string(outdir))
 	return true
@@ -131,10 +132,10 @@ func writeIndexPageData(outdir string) {
 
 	for i, p := range goPackages {
 		_, err = fmt.Fprintf(bf, "{name:'%s',html:'<a href=\"%s\">%s</a>'}",
-				     p.name, p.file, p.name)
+			p.name, p.file, p.name)
 		exitIf(err)
 
-		if i != len(goPackages) - 1 {
+		if i != len(goPackages)-1 {
 			_, err = bf.WriteString(",")
 			exitIf(err)
 		}
@@ -156,7 +157,7 @@ func stdlib() {
 	outdir := os.Args[3]
 
 	fmt.Printf("Building standard library documentation from '%s' to '%s'\n",
-		   goroot, outdir)
+		goroot, outdir)
 	path.Walk(goroot, dirVisitor(outdir), nil)
 
 	fmt.Println("Writing shared data...")
