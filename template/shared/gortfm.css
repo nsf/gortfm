@@ -47,9 +47,9 @@ body {
 }
 /* this is an input field which is used for filtering data */
 #filter {
-	font-size: 14px;
+	font-size: 13px;
+	font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
 	font-weight: normal;
-	font-family: monospace;
 	outline: none;
 	border: 1px solid #aaa;
 	width: 300px;
@@ -97,6 +97,13 @@ pre {
 	padding: 5px;
 	background-color: ghostwhite;
 	border: 1px solid #DEDEDE;
+	font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+	font-size: 13px;
+}
+code {
+	font-family: 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+	font-size: 13px;
+	color: #666;
 }
 /* copy & paste from treeview style, remove? */
 .root a {
