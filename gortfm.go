@@ -122,6 +122,7 @@ func writeSharedDir() {
 	exitIf(err)
 
 	writeUnpackedFile(jquery_js, path.Join(dest, "jquery-1.4.2.min.js"))
+	writeUnpackedFile(jquery_scrollTo_js, path.Join(dest, "jquery.scrollTo-1.4.2-min.js"))
 	writeUnpackedFile(gortfm_js, path.Join(dest, "gortfm.js"))
 	writeUnpackedFile(gortfm_fuzzy_js, path.Join(dest, "gortfm-fuzzy.js"))
 	writeUnpackedFile(gortfm_help_js, path.Join(dest, "gortfm-help.js"))

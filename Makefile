@@ -28,12 +28,13 @@ SFILES=$S/jquery-1.4.2.min.js\
 
 shared.go: $(SFILES)
 	echo -en "package main\n\n" > shared.go
-	gzip -c $S/jquery-1.4.2.min.js | bin2go jquery_js       >> shared.go
-	gzip -c $S/gortfm.js           | bin2go gortfm_js       >> shared.go
-	gzip -c $S/gortfm-fuzzy.js     | bin2go gortfm_fuzzy_js >> shared.go
-	gzip -c $S/gortfm-help.js      | bin2go gortfm_help_js  >> shared.go
-	gzip -c $S/gortfm-index.js     | bin2go gortfm_index_js >> shared.go
-	gzip -c $S/gortfm.css          | bin2go gortfm_css      >> shared.go
+	gzip -c $S/jquery-1.4.2.min.js          | bin2go jquery_js          >> shared.go
+	gzip -c $S/jquery.scrollTo-1.4.2-min.js | bin2go jquery_scrollTo_js >> shared.go
+	gzip -c $S/gortfm.js                    | bin2go gortfm_js          >> shared.go
+	gzip -c $S/gortfm-fuzzy.js              | bin2go gortfm_fuzzy_js    >> shared.go
+	gzip -c $S/gortfm-help.js               | bin2go gortfm_help_js     >> shared.go
+	gzip -c $S/gortfm-index.js              | bin2go gortfm_index_js    >> shared.go
+	gzip -c $S/gortfm.css                   | bin2go gortfm_css         >> shared.go
 
 packagetemplate.go: $T/package.html
 	echo -en "package main\n\nconst packageTemplateStr = \`" > packagetemplate.go

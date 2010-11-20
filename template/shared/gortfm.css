@@ -18,6 +18,11 @@ body {
 	display: table-cell;
 	vertical-align: middle;
 }
+.iselected {
+	border-left: 5px solid gray;
+	margin-left: -10px;
+	padding-left: 5px;
+}
 .line span {
 	margin: 0;
 	font-size: 28px;

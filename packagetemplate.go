@@ -7,6 +7,7 @@ const packageTemplateStr = `<html>
 	<link rel="stylesheet" href="shared/gortfm.css" />
 	<script type="text/javascript" src="{datafile}"></script>
 	<script type="text/javascript" src="shared/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="shared/jquery.scrollTo-1.4.2-min.js"></script>
 	<script type="text/javascript" src="shared/gortfm-help.js"></script>
 	<script type="text/javascript" src="shared/gortfm-fuzzy.js"></script>
 	<script type="text/javascript" src="shared/gortfm.js"></script>

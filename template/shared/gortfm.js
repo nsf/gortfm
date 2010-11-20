@@ -5,14 +5,17 @@ $(document).ready(function() {
 
 	$(document).keypress(function(e) {
 		// this is required for opera
-		if (e.keyCode === 9)
+		var k = e.keyCode
+		if (k === 9 || k === 38 || k === 40)
 			e.preventDefault()
 	})
 	$(document).keydown(function(e) {
+		// tab
 		if (e.keyCode === 9) {
 			e.preventDefault()
 			$("#filter").focus()
 			$("#filter").select()
+			return
 		}
 	})
 	
@@ -58,6 +61,20 @@ $(document).ready(function() {
 			window.location = "?" + $(this).attr("value")
 			return
 		}
+		// arrow up
+		if (e.keyCode === 38) {
+			e.preventDefault()
+			selectUp()
+			scrollToItem()
+			return
+		}
+		// arrow down
+		if (e.keyCode === 40) {
+			e.preventDefault()
+			selectDown()
+			scrollToItem()
+			return
+		}
 	})
 	$("#filter").mouseup(function(e) {
 		e.preventDefault()
@@ -70,10 +87,37 @@ $(document).ready(function() {
 	$("#filter").focus()
 })
 
+function selectDown() {
+	if (selectedItem != -1)
+		$("#i"+selectedItem).removeClass("iselected")
+	if (selectedItem+1 < itemsCount)
+		selectedItem++
+	if (selectedItem != -1)
+		$("#i"+selectedItem).addClass("iselected")
+}
+
+function selectUp() {
+	if (selectedItem != -1) {
+		$("#i"+selectedItem).removeClass("iselected")
+		selectedItem--
+	}
+	if (selectedItem != -1)
+		$("#i"+selectedItem).addClass("iselected")
+}
+
+function scrollToItem() {
+	if (selectedItem == -1)
+		$.scrollTo(0, 200)
+	else
+		$.scrollTo('#i'+selectedItem, 200, {offset:-40})
+}
+
 //===============================================================================
 
 var lastR = null
 var currentQuery = null
+var selectedItem = -1
+var itemsCount = 0
 
 function yield(f, data) {
 	setTimeout(f, 5, data)
@@ -243,7 +287,7 @@ function fqStage4(fq) {
 				var handler = filterClassHandlers[c]
 
 				data[i] = data[i].slice(1)
-				html += handler.drawMainItem(r, item)				
+				html += handler.drawMainItem(r, item, fq.iter)
 				fq.iter++
 			}
 		}
@@ -259,7 +303,7 @@ function fqStage4(fq) {
 			var item = data[i][0]
 
 			data[i] = data[i].slice(1)
-			html += handler.drawMainItem(r, item)
+			html += handler.drawMainItem(r, item, fq.iter)
 			fq.iter++
 			break
 		}
@@ -277,6 +321,7 @@ function fqStage4(fq) {
 }
 
 function fqCleanup(fq) {
+	itemsCount = fq.iter
 	if (fq.iter < 5)
 		$("#contents").html(fq.html)
 	if (fq.iter == 0) {
@@ -293,6 +338,10 @@ String.prototype.startsWith = function(str) {
 
 function hrefixUrl(url) {
 	return '?' + url
+}
+
+function divWrap(text, id) {
+	return '<div id="' + id + '">' + text + '</div>'
 }
 
 //-------------------------------------------------------------------------------
@@ -341,8 +390,8 @@ function drawShortcutsFunc(r, data) {
 }
 
 // here, data is an individual item from the array, returned by prepareFunc
-function drawMainItemFunc(r, data) {
-	return data.html
+function drawMainItemFunc(r, data, i) {
+	return divWrap(data.html, "i" + i)
 }
 
 //-------------------------------------------------------------------------------
@@ -357,12 +406,13 @@ function drawShortcutsType(r, data) {
 	return prepareNamedDataShortcuts("Types", "t", data, r.arg1)
 }
 
-function drawMainItemType(r, data) {
+function drawMainItemType(r, data, i) {
+	var out = data.html
 	if (data.methods.length > 0 && !rContains(r, 'm')) {
-		return data.html + '<p><a href="?tm:' + data.name + '!">Show methods</a></p>'
+		out += '<p><a href="?tm:' + data.name + '!">Show methods</a></p>'
 
 	}
-	return data.html
+	return divWrap(out, "i" + i)
 }
 
 //-------------------------------------------------------------------------------
@@ -377,14 +427,15 @@ function drawShortcutsConst(r, data) {
 	return prepareValueDataShortcuts(data, r.arg1, "c", "Consts")
 }
 
-function drawMainItemConst(r, data) {
+function drawMainItemConst(r, data, i) {
+	var out = data.html
 	if (!rIsDefault(r) && data.names.length > 1 && data.type != "" && !rContains(r, 't')) {
 		var newcls = insertClsAfter(r.cls, 't', 'c')
-		return data.html + '<p>Corresponding type: <a href="' +
+		out += '<p>Corresponding type: <a href="' +
 			hrefixUrl(newcls + ":" + data.type) +
 			'">' + data.type + '</a></p>'
 	}
-	return data.html
+	return divWrap(out, "i" + i)
 }
 
 //-------------------------------------------------------------------------------
@@ -399,8 +450,8 @@ function drawShortcutsVar(r, data) {
 	return prepareValueDataShortcuts(data, r.arg1, "v", "Vars")
 }
 
-function drawMainItemVar(r, data) {
-	return data.html
+function drawMainItemVar(r, data, i) {
+	return divWrap(data.html, "i" + i)
 }
 
 //-------------------------------------------------------------------------------
@@ -422,8 +473,8 @@ function drawShortcutsMethod(r, data) {
 	return ""
 }
 
-function drawMainItemMethod(r, data) {
-	return data.html
+function drawMainItemMethod(r, data, i) {
+	return divWrap(data.html, "i" + i)
 }
 
 //-------------------------------------------------------------------------------
@@ -552,6 +603,7 @@ function sortAndDrawAll(r) {
 		return
 	lastR = r
 	scroll(0,0)
+	selectedItem = -1
 
 	/* start drawing */	
 	if (currentQuery != null)
