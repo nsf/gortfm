@@ -6,6 +6,7 @@ import (
 	"template"
 	"strings"
 	"go/parser"
+	"go/token"
 	"go/ast"
 	"bufio"
 	"bytes"
@@ -137,7 +138,8 @@ func main() {
 		writeSharedDir()
 	}
 
-	pkgs, err := parser.ParseFiles(flag.Args(), parser.ParseComments)
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseFiles(fset, flag.Args(), parser.ParseComments)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -151,7 +153,7 @@ func main() {
 
 		ast.PackageExports(pkg)
 
-		docs := doce.NewPackage(pkg)
+		docs := doce.NewPackage(pkg, fset)
 		writePackage(docs, *optNiceName)
 	}
 }

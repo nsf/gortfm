@@ -41,6 +41,7 @@ type Package struct {
 	Funcs     []*Func // contains only functions with Recv == ""
 	Consts    []*Value
 	Vars      []*Value
+	FileSet   *token.FileSet
 
 	// temporary map for building type methods
 	methods map[string][]*Func
@@ -65,8 +66,9 @@ func (t funcSort) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
 // prefer groups over single constants
 // prefer typed constants over untyped constants
 
-func NewPackage(pkg *ast.Package) *Package {
+func NewPackage(pkg *ast.Package, fset *token.FileSet) *Package {
 	p := new(Package)
+	p.FileSet = fset
 	p.Name = pkg.Name
 	p.Filenames = make([]string, len(pkg.Files))
 

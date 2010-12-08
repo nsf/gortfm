@@ -5,14 +5,15 @@ import (
 	"./doce"
 	"go/printer"
 	"go/doc"
+	"go/token"
 	"template"
 )
 
-func codeToString(i interface{}) string {
+func codeToString(fset *token.FileSet, i interface{}) string {
 	b := bytes.NewBuffer(make([]byte, 0, 128))
 	flags := printer.UseSpaces | printer.TabIndent | printer.GenHTML
 	config := printer.Config{flags, 8, nil}
-	config.Fprint(b, i)
+	config.Fprint(b, fset, i)
 	return b.String()
 }
 
@@ -36,7 +37,7 @@ func writeJSPackageDoc(b *bytes.Buffer, p *doce.Package, index string) {
 	writeJSPropStart(b, "types")
 	b.WriteString(`[`)
 	for i, t := range p.Types {
-		writeJSTypeDoc(b, t)
+		writeJSTypeDoc(b, p.FileSet, t)
 		if i != len(p.Types)-1 {
 			b.WriteString(`,`)
 		}
@@ -47,7 +48,7 @@ func writeJSPackageDoc(b *bytes.Buffer, p *doce.Package, index string) {
 	writeJSPropStart(b, "funcs")
 	b.WriteString(`[`)
 	for i, f := range p.Funcs {
-		writeJSFuncDoc(b, f, funcTemplate)
+		writeJSFuncDoc(b, p.FileSet, f, funcTemplate)
 		if i != len(p.Funcs)-1 {
 			b.WriteString(`,`)
 		}
@@ -58,7 +59,7 @@ func writeJSPackageDoc(b *bytes.Buffer, p *doce.Package, index string) {
 	writeJSPropStart(b, "consts")
 	b.WriteString(`[`)
 	for i, f := range p.Consts {
-		writeJSConstDoc(b, f)
+		writeJSConstDoc(b, p.FileSet, f)
 		if i != len(p.Consts)-1 {
 			b.WriteString(`,`)
 		}
@@ -69,7 +70,7 @@ func writeJSPackageDoc(b *bytes.Buffer, p *doce.Package, index string) {
 	writeJSPropStart(b, "vars")
 	b.WriteString(`[`)
 	for i, f := range p.Vars {
-		writeJSVarDoc(b, f)
+		writeJSVarDoc(b, p.FileSet, f)
 		if i != len(p.Vars)-1 {
 			b.WriteString(`,`)
 		}
@@ -90,25 +91,25 @@ var typeTemplateStr = `
 
 var typeTemplate = template.MustParse(typeTemplateStr, nil)
 
-func typeToHTML(t *doce.Type) string {
+func typeToHTML(fset *token.FileSet, t *doce.Type) string {
 	b := bytes.NewBuffer(make([]byte, 0, 128))
 	var data = map[string]string{
 		"name":    t.Name,
-		"code":    "type " + codeToString(t.Decl),
+		"code":    "type " + codeToString(fset, t.Decl),
 		"comment": commentToHTML(t.Doc),
 	}
 	typeTemplate.Execute(data, b)
 	return b.String()
 }
 
-func writeJSTypeDoc(b *bytes.Buffer, t *doce.Type) {
+func writeJSTypeDoc(b *bytes.Buffer, fset *token.FileSet, t *doce.Type) {
 	b.WriteString(`{`)
-	writeJSPropString(b, "html", typeToHTML(t))
+	writeJSPropString(b, "html", typeToHTML(fset, t))
 	b.WriteString(`,`)
 	writeJSPropString(b, "name", t.Name)
 	b.WriteString(`,"methods":[`)
 	for i, m := range t.Methods {
-		writeJSFuncDoc(b, m, methodTemplate)
+		writeJSFuncDoc(b, fset, m, methodTemplate)
 		if i != len(t.Methods)-1 {
 			b.WriteString(`,`)
 		}
@@ -128,7 +129,7 @@ var valueTemplateStr = `
 
 var valueTemplate = template.MustParse(valueTemplateStr, nil)
 
-func valueToHTML(t *doce.Value, cls, clsfull string) string {
+func valueToHTML(fset *token.FileSet, t *doce.Value, cls, clsfull string) string {
 	b := bytes.NewBuffer(make([]byte, 0, 128))
 
 	// prefer type as a href, but if type is nil, use name of the first value
@@ -153,7 +154,7 @@ func valueToHTML(t *doce.Value, cls, clsfull string) string {
 		"clsfull": clsfull,
 		"name":    name,
 		"href":    href,
-		"code":    codeToString(t.Decl),
+		"code":    codeToString(fset, t.Decl),
 		"comment": commentToHTML(t.Doc),
 	}
 	valueTemplate.Execute(data, b)
@@ -164,9 +165,9 @@ func valueToHTML(t *doce.Value, cls, clsfull string) string {
 // const
 //-------------------------------------------------------------------------
 
-func writeJSConstDoc(b *bytes.Buffer, t *doce.Value) {
+func writeJSConstDoc(b *bytes.Buffer, fset *token.FileSet, t *doce.Value) {
 	b.WriteString(`{`)
-	writeJSPropString(b, "html", valueToHTML(t, "c", "const"))
+	writeJSPropString(b, "html", valueToHTML(fset, t, "c", "const"))
 	b.WriteString(`,`)
 	writeJSPropStringSlice(b, "names", t.Names)
 	b.WriteString(`,`)
@@ -178,9 +179,9 @@ func writeJSConstDoc(b *bytes.Buffer, t *doce.Value) {
 // var
 //-------------------------------------------------------------------------
 
-func writeJSVarDoc(b *bytes.Buffer, t *doce.Value) {
+func writeJSVarDoc(b *bytes.Buffer, fset *token.FileSet, t *doce.Value) {
 	b.WriteString(`{`)
-	writeJSPropString(b, "html", valueToHTML(t, "v", "var"))
+	writeJSPropString(b, "html", valueToHTML(fset, t, "v", "var"))
 	b.WriteString(`,`)
 	writeJSPropStringSlice(b, "names", t.Names)
 	b.WriteString(`,`)
@@ -208,7 +209,7 @@ var methodTemplateStr = `
 
 var methodTemplate = template.MustParse(methodTemplateStr, nil)
 
-func funcToHTML(t *doce.Func, tpl *template.Template) string {
+func funcToHTML(fset *token.FileSet, t *doce.Func, tpl *template.Template) string {
 	b := bytes.NewBuffer(make([]byte, 0, 128))
 
 	recvnostar := t.Recv
@@ -218,7 +219,7 @@ func funcToHTML(t *doce.Func, tpl *template.Template) string {
 
 	var data = map[string]string{
 		"name":       t.Name,
-		"code":       codeToString(t.Decl),
+		"code":       codeToString(fset, t.Decl),
 		"comment":    commentToHTML(t.Doc),
 		"recv":       t.Recv,
 		"recvnostar": recvnostar,
@@ -227,9 +228,9 @@ func funcToHTML(t *doce.Func, tpl *template.Template) string {
 	return b.String()
 }
 
-func writeJSFuncDoc(b *bytes.Buffer, f *doce.Func, tpl *template.Template) {
+func writeJSFuncDoc(b *bytes.Buffer, fset *token.FileSet, f *doce.Func, tpl *template.Template) {
 	b.WriteString(`{`)
-	writeJSPropString(b, "html", funcToHTML(f, tpl))
+	writeJSPropString(b, "html", funcToHTML(fset, f, tpl))
 	b.WriteString(`,`)
 	writeJSPropString(b, "name", f.Name)
 	b.WriteString(`}`)
