@@ -11,9 +11,11 @@ import (
 
 func codeToString(fset *token.FileSet, i interface{}) string {
 	b := bytes.NewBuffer(make([]byte, 0, 128))
-	flags := printer.UseSpaces | printer.TabIndent | printer.GenHTML
-	config := printer.Config{flags, 8, nil}
-	config.Fprint(b, fset, i)
+	tmpb := bytes.NewBuffer(make([]byte, 0, 128))
+	flags := printer.UseSpaces | printer.TabIndent
+	config := printer.Config{flags, 8}
+	config.Fprint(tmpb, fset, i)
+	template.HTMLEscape(b, tmpb.Bytes())
 	return b.String()
 }
 
@@ -98,7 +100,7 @@ func typeToHTML(fset *token.FileSet, t *doce.Type) string {
 		"code":    "type " + codeToString(fset, t.Decl),
 		"comment": commentToHTML(t.Doc),
 	}
-	typeTemplate.Execute(data, b)
+	typeTemplate.Execute(b, data)
 	return b.String()
 }
 
@@ -157,7 +159,7 @@ func valueToHTML(fset *token.FileSet, t *doce.Value, cls, clsfull string) string
 		"code":    codeToString(fset, t.Decl),
 		"comment": commentToHTML(t.Doc),
 	}
-	valueTemplate.Execute(data, b)
+	valueTemplate.Execute(b, data)
 	return b.String()
 }
 
@@ -224,7 +226,7 @@ func funcToHTML(fset *token.FileSet, t *doce.Func, tpl *template.Template) strin
 		"recv":       t.Recv,
 		"recvnostar": recvnostar,
 	}
-	tpl.Execute(data, b)
+	tpl.Execute(b, data)
 	return b.String()
 }
 

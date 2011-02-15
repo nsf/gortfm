@@ -71,7 +71,7 @@ func writePackagePage(pkgname string) {
 		"pkgname":  pkgname,
 		"datafile": "gortfm-" + pkgfilename + "-data.js",
 	}
-	packageTemplate.Execute(tplparams, bf)
+	packageTemplate.Execute(bf, tplparams)
 	bf.Flush()
 }
 
