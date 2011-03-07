@@ -3,7 +3,7 @@ package main
 import (
 	"strings"
 	"os"
-	"path"
+	"path/filepath"
 	"fmt"
 	"bufio"
 )
@@ -23,7 +23,7 @@ func prepareArgs(dir string, gofiles string) []string {
 		if a == "" {
 			continue
 		}
-		args[i] = path.Join(dir, a)
+		args[i] = filepath.Join(dir, a)
 		i++
 	}
 	args = args[:i]
@@ -110,7 +110,7 @@ func exitIf(err os.Error) {
 }
 
 func writeIndexPage(outdir string) {
-	f, err := os.Open(path.Join(outdir, "index.html"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Open(filepath.Join(outdir, "index.html"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	exitIf(err)
 	defer f.Close()
 
@@ -122,7 +122,7 @@ func writeIndexPage(outdir string) {
 }
 
 func writeIndexPageData(outdir string) {
-	f, err := os.Open(path.Join(outdir, "gortfm-index.js"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Open(filepath.Join(outdir, "gortfm-index.js"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	exitIf(err)
 	defer f.Close()
 
@@ -153,12 +153,12 @@ func stdlib() {
 		os.Exit(1)
 	}
 
-	goroot := path.Join(os.Args[2], "src", "pkg")
+	goroot := filepath.Join(os.Args[2], "src", "pkg")
 	outdir := os.Args[3]
 
 	fmt.Printf("Building standard library documentation from '%s' to '%s'\n",
 		goroot, outdir)
-	path.Walk(goroot, dirVisitor(outdir), nil)
+	filepath.Walk(goroot, dirVisitor(outdir), nil)
 
 	fmt.Println("Writing shared data...")
 	run("gortfm", "-outdir", outdir)
