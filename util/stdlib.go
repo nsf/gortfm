@@ -110,7 +110,7 @@ func exitIf(err os.Error) {
 }
 
 func writeIndexPage(outdir string) {
-	f, err := os.Open(filepath.Join(outdir, "index.html"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Create(filepath.Join(outdir, "index.html"))
 	exitIf(err)
 	defer f.Close()
 
@@ -122,7 +122,7 @@ func writeIndexPage(outdir string) {
 }
 
 func writeIndexPageData(outdir string) {
-	f, err := os.Open(filepath.Join(outdir, "gortfm-index.js"), os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Create(filepath.Join(outdir, "gortfm-index.js"))
 	exitIf(err)
 	defer f.Close()
 

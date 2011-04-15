@@ -38,7 +38,7 @@ func writePackageData(docs *doce.Package, pkgname string) {
 	pkgfilename := strings.Replace(pkgname, "/", "_", -1)
 	dest := path.Join(*optOutDir, "gortfm-"+pkgfilename+"-data.js")
 
-	f, err := os.Open(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Create(dest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -57,7 +57,7 @@ func writePackagePage(pkgname string) {
 	pkgfilename := strings.Replace(pkgname, "/", "_", -1)
 	dest := path.Join(*optOutDir, pkgfilename+".html")
 
-	f, err := os.Open(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Create(dest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -97,7 +97,7 @@ func exitIf(err os.Error) {
 
 func writeUnpackedFile(data []byte, dest string) {
 	// create "out"
-	outfile, err := os.Open(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	outfile, err := os.Create(dest)
 	exitIf(err)
 	defer outfile.Close()
 	out := bufio.NewWriter(outfile)

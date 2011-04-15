@@ -50,7 +50,7 @@ func getGofiles(dir, rule string) (string, os.Error) {
 
 	// create temporary file
 	tmpfile := path.Join(os.TempDir(), "__Makefile__")
-	f, err := os.Open(tmpfile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	f, err := os.Create(tmpfile)
 	if err != nil {
 		return "", err
 	}
