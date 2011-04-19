@@ -148,17 +148,24 @@ func writeIndexPageData(outdir string) {
 }
 
 func stdlib() {
-	if len(os.Args) != 4 {
+	if len(os.Args) < 4 {
 		printHelpToStderr()
 		os.Exit(1)
 	}
 
 	goroot := filepath.Join(os.Args[2], "src", "pkg")
-	outdir := os.Args[3]
+	
+	outdir := os.Args[len(os.Args)-1]
 
 	fmt.Printf("Building standard library documentation from '%s' to '%s'\n",
 		goroot, outdir)
 	filepath.Walk(goroot, dirVisitor(outdir), nil)
+
+	for _, pkgroot := range os.Args[3:len(os.Args)-1] {
+		fmt.Printf("Building documentation from '%s' to '%s'\n",
+			pkgroot, outdir)
+		filepath.Walk(pkgroot, dirVisitor(outdir), nil)
+	}
 
 	fmt.Println("Writing shared data...")
 	run("gortfm", "-outdir", outdir)

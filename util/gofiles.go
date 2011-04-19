@@ -27,17 +27,17 @@ func gofiles() {
 
 const gofilesRulePE = `
 gofiles:
-	@echo -n "$(subst $$,\$$,$(value GOFILES)) $(subst $$,\$$,$(value CGOFILES))"
+	@echo "$(subst $$,\$$,$(value GOFILES)) $(subst $$,\$$,$(value CGOFILES))"
 `
 
 const gofilesRule = `
 gofiles:
-	@echo -n "$(GOFILES) $(CGOFILES)"
+	@echo "$(GOFILES) $(CGOFILES)"
 `
 
 const gofilesRuleTarg = `
 gofiles:
-	@echo -n "$(TARG):$(GOFILES)"
+	@echo "$(TARG):$(GOFILES)"
 `
 
 func getGofiles(dir, rule string) (string, os.Error) {

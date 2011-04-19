@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"exec"
 	"os"
 	"io/ioutil"
@@ -30,12 +31,12 @@ func run(name string, args ...string) string {
 		panic(err)
 	}
 
-	return string(data)
+	return strings.TrimSpace(string(data))
 }
 
 const usage = `usage: %s gofiles [<dir>]
        %s genrule [<dir>]
-       %s stdlib <goroot> <outdir>
+       %s stdlib <goroot> <pkgroot>* <outdir>
 `
 
 func printHelpToStderr() {
